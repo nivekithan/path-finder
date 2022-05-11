@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { CELL_SIZE } from "../gridHelpers";
-import { Cell, CellPos, CellProps, CellState } from "./cell";
+import { Cell, CellPos, CellState } from "./cell";
 import { Updater, useImmer } from "use-immer";
 import { comparCellPos } from "../cellHelpers";
 
@@ -41,6 +40,7 @@ export const Grid = ({ row, column }: GridProps) => {
                   key={`col-${colNum}}`}
                   size={CELL_SIZE}
                   state={state}
+                  pos={{ row: rowNum, column: colNum }}
                   cellGotClicked={cellGotClicked(
                     {
                       column: colNum,

@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "open-cypress": "cypress open",
+    "test-cypress": "cypress run",
+    "test" : "pnpm run test-cypress"
   },
   "dependencies": {
     "immer": "^9.0.12",
@@ -18,9 +21,10 @@
     "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^1.3.0",
     "autoprefixer": "^10.4.7",
+    "cypress": "^9.6.1",
     "postcss": "^8.4.13",
     "tailwindcss": "^3.0.24",
-    "typescript": "^4.6.3",
+    "typescript": "^4.6.4",
     "vite": "^2.9.7"
   }
 }

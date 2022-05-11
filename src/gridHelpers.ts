@@ -15,8 +15,7 @@ export const getGridDemensions = ({
   height: number;
 }) => {
   const columns = Math.floor(width / CELL_SIZE);
-  const rows = Math.floor(height / 25);
+  const rows = Math.floor(height / CELL_SIZE);
 
   return { columns, rows };
 };
-

@@ -4,9 +4,15 @@ export type CellProps = {
   size: number;
   state: CellState;
   cellGotClicked: () => void;
+  pos: CellPos;
 };
 
-export const Cell = ({ size, state, cellGotClicked }: CellProps) => {
+export const Cell = ({
+  size,
+  state,
+  cellGotClicked,
+  pos: { column, row },
+}: CellProps) => {
   const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     cellGotClicked();
@@ -17,6 +23,9 @@ export const Cell = ({ size, state, cellGotClicked }: CellProps) => {
       style={{ height: size, width: size }}
       className="outline-1 outline-blue-500 outline grid place-content-center"
       onClick={onClick}
+      data-column-pos={column}
+      data-row-pos={row}
+      data-state-type={state.type}
     >
       {(() => {
         if (state.type === "startCellState") {
