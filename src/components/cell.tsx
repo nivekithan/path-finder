@@ -82,7 +82,7 @@ const Target = () => {
 };
 
 const Wall = () => {
-  return <div className="bg-black w-full h-full"></div>;
+  return <div className="bg-slate-700 w-full h-full animate-wall"></div>;
 };
 
 export type CellPos = { row: number; column: number };

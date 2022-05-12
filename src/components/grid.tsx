@@ -66,7 +66,7 @@ export const Grid = ({ row, column }: GridProps) => {
             {rows.map((state, colNum) => {
               return (
                 <Cell
-                  key={`col-${colNum}}`}
+                  key={`col-${colNum}}-row-${rowNum}`}
                   size={CELL_SIZE}
                   state={state}
                   pos={{ row: rowNum, column: colNum }}
