@@ -3,7 +3,7 @@ import { Cell, CellPos, CellState } from "./cell";
 import { Updater, useImmer } from "use-immer";
 import { comparCellPos } from "../cellHelpers";
 import { useEffect, useRef } from "react";
-import { EventIdentifier } from "../eventIdentifier";
+import { cellGotClicked, EventIdentifier } from "../eventIdentifier";
 
 export type GridProps = {
   column: number;
@@ -86,37 +86,4 @@ export const Grid = ({ row, column }: GridProps) => {
       })}
     </div>
   );
-};
-
-const cellGotClicked = (
-  pos: CellPos,
-  gridState: GridState,
-  setGridState: Updater<GridState>
-) => {
-  return () => {
-    if (gridState.cells[pos.row][pos.column].type !== "defaultCellState") {
-      // If clicked cell is anything other then default cell then we will set it to default
-      setGridState((prevState) => {
-        setCellType(prevState, pos, { type: "defaultCellState" });
-      });
-    }
-    // New cell is clicked
-    else if (gridState.onClick === "setStartCell") {
-      setGridState((prevState) => {
-        setCellType(prevState, pos, { type: "startCellState" });
-      });
-    } else if (gridState.onClick === "setTargetCell") {
-      setGridState((gridState) => {
-        setCellType(gridState, pos, { type: "targetCellState" });
-      });
-    } else if (gridState.onClick === "setWallCell") {
-      setGridState((gridState) => {
-        setCellType(gridState, pos, { type: "wallCellState" });
-      });
-    } else if (gridState.onClick === null) {
-      return;
-    } else {
-      throw Error("Add more cases");
-    }
-  };
 };

@@ -36,6 +36,10 @@ export const computeNextOnlick = (gridState: GridState): GridOnclick => {
   }
 };
 
+export const getCellState = (gridState: GridState, cellPos: CellPos): CellState => {
+  return gridState.cells[cellPos.row][cellPos.column];
+};
+
 export const setCellType = (
   gridState: WritableDraft<GridState>,
   cellPos: CellPos,

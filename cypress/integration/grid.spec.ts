@@ -129,4 +129,34 @@ describe("Testing Grid functionality", () => {
       .should("have.attr", "data-state-type")
       .and("eq", "startCellState");
   });
+
+  it("Painting walls", () => {
+    cy.getCell({ column: 4, row: 0 }).trigger("pointerdown");
+
+    for (let i = 1; i <= 5; i++) {
+      cy.getCell({ column: 4, row: i })
+        .trigger("pointerover")
+        .should("have.attr", "data-state-type")
+        .and("eq", "wallCellState");
+    }
+
+    cy.getCell({ column: 4, row: 0 })
+      .should("have.attr", "data-state-type")
+      .and("eq", "wallCellState");
+
+    for (let i = 5; i >= 0; i--) {
+      cy.getCell({ column: 4, row: i }).trigger("pointerover");
+    }
+
+    for (let i = 0; i <= 5; i++) {
+      cy.getCell({ column: 4, row: i })
+        .should("have.attr", "data-state-type")
+        .and("eq", "wallCellState");
+    }
+
+    cy.getCell({ column: 4, row: 0 })
+      .trigger("pointerup")
+      .should("have.attr", "data-state-type")
+      .and("eq", "wallCellState");
+  });
 });
