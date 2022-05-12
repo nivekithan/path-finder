@@ -14,10 +14,15 @@ export type GridState = {
   cells: CellState[][];
   startCell: CellPos | null;
   targetCell: CellPos | null;
+  walls: Record<string, boolean>;
   onClick: GridOnclick;
 };
 
-export type GridOnclick = "setStartCell" | "setTargetCell" | null;
+export type GridOnclick =
+  | "setStartCell"
+  | "setTargetCell"
+  | "setWallCell"
+  | null;
 
 export const Grid = ({ row, column }: GridProps) => {
   const [gridState, setGridState] = useImmer<GridState>(() => {
@@ -27,6 +32,7 @@ export const Grid = ({ row, column }: GridProps) => {
       ),
       startCell: null,
       targetCell: null,
+      walls: {},
       onClick: "setStartCell",
     };
   });
@@ -88,16 +94,8 @@ const cellGotClicked = (
   setGridState: Updater<GridState>
 ) => {
   return () => {
-    if (gridState.startCell && comparCellPos(gridState.startCell, pos)) {
-      // Remove the start cell
-      setGridState((prevState) => {
-        setCellType(prevState, pos, { type: "defaultCellState" });
-      });
-    } else if (
-      gridState.targetCell &&
-      comparCellPos(gridState.targetCell, pos)
-    ) {
-      // Remove Target cell
+    if (gridState.cells[pos.row][pos.column].type !== "defaultCellState") {
+      // If clicked cell is anything other then default cell then we will set it to default
       setGridState((prevState) => {
         setCellType(prevState, pos, { type: "defaultCellState" });
       });
@@ -110,6 +108,10 @@ const cellGotClicked = (
     } else if (gridState.onClick === "setTargetCell") {
       setGridState((gridState) => {
         setCellType(gridState, pos, { type: "targetCellState" });
+      });
+    } else if (gridState.onClick === "setWallCell") {
+      setGridState((gridState) => {
+        setCellType(gridState, pos, { type: "wallCellState" });
       });
     } else if (gridState.onClick === null) {
       return;

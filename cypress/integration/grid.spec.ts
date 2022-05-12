@@ -1,4 +1,4 @@
-describe("Visit homepage", () => {
+describe("Testing Grid functionality", () => {
   before(() => {
     cy.visit("/");
   });
@@ -14,6 +14,24 @@ describe("Visit homepage", () => {
       .click()
       .should("have.attr", "data-state-type")
       .and("eq", "targetCellState");
+  });
+
+  it("Clicking cell when both start and target cell is set should set the wall cell", () => {
+    cy.getCell({ column: 5, row: 1 })
+      .click()
+      .should("have.attr", "data-state-type")
+      .and("eq", "wallCellState");
+    cy.getCell({ column: 5, row: 2 })
+      .click()
+      .should("have.attr", "data-state-type")
+      .and("eq", "wallCellState");
+  });
+
+  it("Clicking wall cell again should toggle wallcellstate", () => {
+    cy.getCell({ column: 5, row: 2 })
+      .click()
+      .should("have.attr", "data-state-type")
+      .and("eq", "defaultCellState");
   });
 
   it("Clicking start cell again should toggle startCellState", () => {
@@ -92,9 +110,7 @@ describe("Visit homepage", () => {
   });
 
   it("Dragging targetcell to startcell should transfer targetcell and reset start cell", () => {
-    cy.getCell({ column: 10, row: 5 })
-      .trigger("pointerdown")
-      .trigger("pointerdown");
+    cy.getCell({ column: 10, row: 5 }).trigger("pointerdown");
     cy.wait(100);
     cy.getCell({ column: 10, row: 6 })
       .trigger("pointerup")
@@ -112,12 +128,5 @@ describe("Visit homepage", () => {
       // if startcell have be reset, then clicking should set the cell to startcell
       .should("have.attr", "data-state-type")
       .and("eq", "startCellState");
-  });
-
-  it("Clicking cell while startCell and targetCell is set should lead to nothing", () => {
-    cy.getCell({ column: 1, row: 10 })
-      .click()
-      .should("have.attr", "data-state-type")
-      .and("eq", "defaultCellState");
   });
 });

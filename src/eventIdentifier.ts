@@ -33,9 +33,19 @@ export class EventIdentifier {
     }
   }
 
+  private handleNativePointerCancelEvent(e: Event) {
+    if (e.type === "pointercancel") {
+      this.dispatchPointerCancel(e as PointerEvent);
+    }
+  }
+
   subscribeToEvents() {
     window.addEventListener("pointerdown", this.handleNativePointerDownEvent);
     window.addEventListener("pointerup", this.handleNativePointerUpEvent);
+    window.addEventListener(
+      "pointercancel",
+      this.handleNativePointerCancelEvent
+    );
   }
 
   unsubscribeFromEvents() {
@@ -44,6 +54,10 @@ export class EventIdentifier {
       this.handleNativePointerDownEvent
     );
     window.removeEventListener("pointerup", this.handleNativePointerUpEvent);
+    window.removeEventListener(
+      "pointercancel",
+      this.handleNativePointerCancelEvent
+    );
   }
 
   constructor(
@@ -78,6 +92,7 @@ export class EventIdentifier {
       comparCellPos(cellPos, this.gridStateRef.current.targetCell)
     ) {
       this.state = { type: "pressedDownOnTargetCell", targetCell: cellPos };
+    } else {
     }
   }
 
@@ -93,8 +108,10 @@ export class EventIdentifier {
       this.originalPressedOnCell
         ? comparCellPos(this.originalPressedOnCell, cellPos)
         : false
-    )
+    ) {
+      this.state = null;
       return; // this is a click event which is handled by the cell itself
+    }
 
     if (this.state?.type === "pressedDownOnStartCell") {
       const state = this.state;
@@ -119,13 +136,14 @@ export class EventIdentifier {
         throw Error("Unreachable code");
       }
     }
-
     this.state = null;
   }
 
-  dispatchPointerCancel() {}
+  dispatchPointerCancel(e: PointerEvent) {
+    this.state = null;
+  }
 
-  dispatchPointerOut() {}
+  dispatchPointerOut(e: PointerEvent) {}
 
   dispatchPointerLeave() {}
 }

@@ -1,6 +1,8 @@
 import { WritableDraft } from "immer/dist/internal";
+import { convertCellPosToString } from "./cellHelpers";
 import { CellPos, CellState } from "./components/cell";
 import { GridOnclick, GridState } from "./components/grid";
+import { current } from "immer";
 
 export const CELL_SIZE = 35;
 
@@ -30,7 +32,7 @@ export const computeNextOnlick = (gridState: GridState): GridOnclick => {
   } else if (gridState.targetCell === null) {
     return "setTargetCell";
   } else {
-    return null;
+    return "setWallCell";
   }
 };
 
@@ -51,6 +53,9 @@ export const setCellType = (
       gridState.targetCell = null;
 
       gridState.cells[cellPos.row][cellPos.column] = newCellType;
+    } else if (currentCellType === "wallCellState") {
+      delete gridState.walls[convertCellPosToString(cellPos)];
+      gridState.cells[cellPos.row][cellPos.column] = newCellType;
     } else {
       throw Error("Add more cases");
     }
@@ -70,6 +75,9 @@ export const setCellType = (
       // Do nothing
     } else if (currentCellType === "targetCellState") {
       gridState.targetCell = null;
+      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+    } else if (currentCellType === "wallCellState") {
+      delete gridState.walls[convertCellPosToString(cellPos)];
       gridState.cells[cellPos.row][cellPos.column] = newCellType;
     } else {
       throw Error("Add more cases");
@@ -92,6 +100,26 @@ export const setCellType = (
       gridState.startCell = null;
       gridState.cells[cellPos.row][cellPos.column] = newCellType;
     } else if (currentCellType === "targetCellState") {
+      // Do nothing
+    } else if (currentCellType === "wallCellState") {
+      delete gridState.walls[convertCellPosToString(cellPos)];
+      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+    } else {
+      throw Error("Add more cases");
+    }
+  } else if (newCellType.type === "wallCellState") {
+    const currentCellType = gridState.cells[cellPos.row][cellPos.column].type;
+
+    gridState.walls[convertCellPosToString(cellPos)] = true;
+    if (currentCellType === "defaultCellState") {
+      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+    } else if (currentCellType === "startCellState") {
+      gridState.startCell = null;
+      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+    } else if (currentCellType === "targetCellState") {
+      gridState.targetCell = null;
+      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+    } else if (currentCellType === "wallCellState") {
       // Do nothing
     } else {
       throw Error("Add more cases");
