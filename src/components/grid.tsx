@@ -1,7 +1,9 @@
-import { CELL_SIZE } from "../gridHelpers";
+import { CELL_SIZE, computeNextOnlick, setCellType } from "../gridHelpers";
 import { Cell, CellPos, CellState } from "./cell";
 import { Updater, useImmer } from "use-immer";
 import { comparCellPos } from "../cellHelpers";
+import { useEffect, useRef } from "react";
+import { EventIdentifier } from "../eventIdentifier";
 
 export type GridProps = {
   column: number;
@@ -28,6 +30,27 @@ export const Grid = ({ row, column }: GridProps) => {
       onClick: "setStartCell",
     };
   });
+
+  const gridStateRef = useRef(gridState);
+  const setGridStateRef = useRef(setGridState);
+
+  useEffect(() => {
+    gridStateRef.current = gridState;
+    setGridStateRef.current = setGridState;
+  }, [gridState, setGridState]);
+
+  useEffect(() => {
+    const GridEventIdentifier = new EventIdentifier(
+      gridStateRef,
+      setGridStateRef
+    );
+
+    GridEventIdentifier.subscribeToEvents();
+
+    return () => {
+      GridEventIdentifier.unsubscribeFromEvents();
+    };
+  }, []);
 
   return (
     <div className="flex flex-col">
@@ -68,49 +91,30 @@ const cellGotClicked = (
     if (gridState.startCell && comparCellPos(gridState.startCell, pos)) {
       // Remove the start cell
       setGridState((prevState) => {
-        prevState.startCell = null;
-        prevState.cells[pos.row][pos.column] = { type: "defaultCellState" };
-        prevState.onClick = computeNextOnlick(prevState);
+        setCellType(prevState, pos, { type: "defaultCellState" });
       });
     } else if (
       gridState.targetCell &&
       comparCellPos(gridState.targetCell, pos)
     ) {
       // Remove Target cell
-
       setGridState((prevState) => {
-        prevState.targetCell = null;
-        prevState.cells[pos.row][pos.column] = { type: "defaultCellState" };
-        prevState.onClick = computeNextOnlick(prevState);
+        setCellType(prevState, pos, { type: "defaultCellState" });
       });
     }
     // New cell is clicked
     else if (gridState.onClick === "setStartCell") {
       setGridState((prevState) => {
-        prevState.startCell = pos;
-
-        prevState.cells[pos.row][pos.column] = { type: "startCellState" };
-
-        prevState.onClick = computeNextOnlick(prevState);
+        setCellType(prevState, pos, { type: "startCellState" });
       });
     } else if (gridState.onClick === "setTargetCell") {
-      setGridState((prevState) => {
-        prevState.targetCell = pos;
-        prevState.cells[pos.row][pos.column] = { type: "targetCellState" };
-        prevState.onClick = computeNextOnlick(prevState);
+      setGridState((gridState) => {
+        setCellType(gridState, pos, { type: "targetCellState" });
       });
     } else if (gridState.onClick === null) {
       return;
+    } else {
+      throw Error("Add more cases");
     }
   };
-};
-
-const computeNextOnlick = (gridState: GridState): GridOnclick => {
-  if (gridState.startCell === null) {
-    return "setStartCell";
-  } else if (gridState.targetCell === null) {
-    return "setTargetCell";
-  } else {
-    return null;
-  }
 };

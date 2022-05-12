@@ -13,9 +13,12 @@ export const Cell = ({
   cellGotClicked,
   pos: { column, row },
 }: CellProps) => {
-  const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
+  const onClick = () => {
     cellGotClicked();
+  };
+
+  const onDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
   };
 
   return (
@@ -26,6 +29,8 @@ export const Cell = ({
       data-column-pos={column}
       data-row-pos={row}
       data-state-type={state.type}
+      draggable={false}
+      onDragStart={onDragStart}
     >
       {(() => {
         if (state.type === "startCellState") {
