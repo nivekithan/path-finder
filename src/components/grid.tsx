@@ -1,12 +1,7 @@
-import {
-  CELL_SIZE,
-  computeNextOnlick,
-  setCellBackgroundState,
-  setCellType,
-} from "../gridHelpers";
+import { CELL_SIZE, setCellBackgroundState } from "../gridHelpers";
 import { Cell, CellPos, CellState } from "./cell";
-import { Updater, useImmer } from "use-immer";
-import { comparCellPos, convertStringToCellPos } from "../cellHelpers";
+import { useImmer } from "use-immer";
+import { convertStringToCellPos } from "../cellHelpers";
 import React, { useEffect, useRef, useState } from "react";
 import { cellGotClicked, EventIdentifier } from "../eventIdentifier";
 import { dijkstra } from "../algorithms/dijkstra";
@@ -54,6 +49,7 @@ export const Grid = ({ row, column }: GridProps) => {
 
   const gridStateRef = useRef(gridState);
   const setGridStateRef = useRef(setGridState);
+  const selectRef = useRef<HTMLSelectElement | null>(null);
 
   useEffect(() => {
     gridStateRef.current = gridState;
@@ -97,13 +93,33 @@ export const Grid = ({ row, column }: GridProps) => {
         });
       }
     });
-    const solution = await dijkstra(gridState, async (cellPos: CellPos) => {
-      setGridState((gridState) => {
-        setCellBackgroundState(gridState, cellPos, "visted");
-      });
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
-    });
+    const avaliableAlgorithm: Record<
+      AvaliableAlgorithm,
+      (
+        gridState: GridState,
+        onVisitingNode: (cellPos: CellPos) => void
+      ) => Promise<CellPos[] | null>
+    > = {
+      dijkstra: dijkstra,
+    };
+
+    if (selectRef.current === null) {
+      throw Error("Set selectRef to a valid element");
+    }
+
+    const selectedValue = selectRef.current.value as AvaliableAlgorithm;
+
+    const solution = await avaliableAlgorithm[selectedValue](
+      gridState,
+      async (cellPos: CellPos) => {
+        setGridState((gridState) => {
+          setCellBackgroundState(gridState, cellPos, "visted");
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 15));
+      }
+    );
 
     if (solution !== null) {
       for (const cellPos of solution) {
@@ -162,6 +178,17 @@ export const Grid = ({ row, column }: GridProps) => {
         );
       })}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 mb-5 shadow-lg p-4 rounded bg-gray-100 flex gap-x-2">
+        <label className="flex items-center justify-center gap-x-2 font-semibold">
+          Algorithms :
+          <select
+            name="Algorithm"
+            className="rounded px-3 py-2"
+            ref={selectRef}
+            defaultValue="dijkstra"
+          >
+            <option value="dijkstra">Dijkstra</option>
+          </select>
+        </label>
         <button
           className="bg-blue-700 rounded px-3 py-2 text-white disabled:opacity-50"
           disabled={!canVisualize}
@@ -179,3 +206,5 @@ export const Grid = ({ row, column }: GridProps) => {
     </div>
   );
 };
+
+export type AvaliableAlgorithm = "dijkstra";

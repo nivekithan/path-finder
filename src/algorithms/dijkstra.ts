@@ -28,7 +28,8 @@ class DijkstraPathFinder {
     path: CellPos[];
   } | null;
 
-  private visitedCells: Set<string>;
+  private visitedCells: Record<string, boolean>;
+  private unVisitedCells: Record<string, boolean>;
 
   private onVisitingNode: (cellPos: CellPos) => void;
 
@@ -38,9 +39,10 @@ class DijkstraPathFinder {
   ) {
     this.gridState = gridState;
     this.calculatedPath = {};
-    this.visitedCells = new Set();
+    this.visitedCells = {};
     this.minimumKnownDistanceThatsNotVisited = null;
     this.targetPath = null;
+    this.unVisitedCells = {};
     this.onVisitingNode = onVisitingNode;
   }
 
@@ -66,7 +68,7 @@ class DijkstraPathFinder {
       }
 
       const { cellPos, path } = minimumKnownDistance;
-      this.visitedCells.add(convertCellPosToString(cellPos));
+      this.visitedCells[convertCellPosToString(cellPos)] = true;
       this.minimumKnownDistanceThatsNotVisited = null;
 
       if (comparCellPos(cellPos, this.gridState.targetCell)) {
@@ -80,7 +82,7 @@ class DijkstraPathFinder {
 
       adjacentCells.forEach((adjacentCell) => {
         const adjacentCellString = convertCellPosToString(adjacentCell);
-        if (this.visitedCells.has(adjacentCellString)) return;
+        if (this.visitedCells[adjacentCellString]) return;
 
         const newPath = [...path, adjacentCell];
         const distance = this.distanceOfCellPosFromSource(adjacentCell);
@@ -106,17 +108,20 @@ class DijkstraPathFinder {
     const stringPath = convertCellPosToString(cellPos);
 
     this.calculatedPath[stringPath] = path;
+    this.unVisitedCells[stringPath] = true;
   }
 
   getMinimumKnownDistanceThatsNotVisited() {
     if (this.minimumKnownDistanceThatsNotVisited === null) {
-      const newMinimumKnowDistance = Object.entries(this.calculatedPath).reduce(
-        (acum: [string, CellPos[]] | null, [curCellPos, curPath]) => {
+      const newMinimumKnowDistance = Object.entries(this.unVisitedCells).reduce(
+        (acum: [string, CellPos[]] | null, [curCellPos]) => {
+          const curPath = this.calculatedPath[curCellPos];
+
           if (curPath === undefined) {
             throw Error("Not possible");
           }
 
-          if (this.visitedCells.has(curCellPos)) return acum;
+          if (this.visitedCells[curCellPos]) return acum;
 
           if (acum === null) {
             return [curCellPos, curPath] as [string, CellPos[]];
