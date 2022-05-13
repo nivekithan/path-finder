@@ -115,6 +115,26 @@ export const Grid = ({ row, column }: GridProps) => {
     }
   };
 
+  const onClearGrid = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    setGridState((gridState) => {
+      gridState.startCell = null;
+      gridState.targetCell = null;
+      gridState.vistedCells = {};
+      gridState.foundCells = {};
+      gridState.walls = {};
+      gridState.onClick = "setStartCell";
+
+      gridState.cells.forEach((row) => {
+        row.forEach((cell) => {
+          cell.type = "defaultCellState";
+          cell.backgroundState = "default";
+        });
+      });
+    });
+  };
+
   return (
     <div className="flex flex-col">
       {gridState.cells.map((rows, rowNum) => {
@@ -141,13 +161,19 @@ export const Grid = ({ row, column }: GridProps) => {
           </div>
         );
       })}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 mb-5 shadow-lg p-4 rounded bg-gray-100">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 mb-5 shadow-lg p-4 rounded bg-gray-100 flex gap-x-2">
         <button
           className="bg-blue-700 rounded px-3 py-2 text-white disabled:opacity-50"
           disabled={!canVisualize}
           onClick={onVisualize}
         >
           Visualise
+        </button>
+        <button
+          className="bg-blue-700 rounded px-3 py-2 text-white"
+          onClick={onClearGrid}
+        >
+          Clear Grid
         </button>
       </div>
     </div>

@@ -189,3 +189,17 @@ describe("Testing Grid functionality", () => {
     });
   });
 });
+
+describe("Clear grid", () => {
+  it("Checking clear grid", () => {
+    cy.visit("/");
+
+    cy.getCell({ column: 2, row: 2 }).click();
+
+    cy.contains("Clear Grid").click();
+
+    cy.getCell({ column: 2, row: 2 })
+      .should("have.attr", "data-state-type")
+      .and("eq", "defaultCellState");
+  });
+});
