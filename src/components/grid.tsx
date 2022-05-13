@@ -78,30 +78,34 @@ export const Grid = ({ row, column }: GridProps) => {
 
     if (!canVisualize)
       throw Error("Button should be disabled if it can't be visualized");
+    Object.keys(gridState.foundCells).forEach((cellsPosInStr) => {
+      const cellPos = convertStringToCellPos(cellsPosInStr);
 
-    const solution = dijkstra(gridState);
+      if (gridState.foundCells[cellsPosInStr]) {
+        setGridState((gridState) => {
+          setCellBackgroundState(gridState, cellPos, "default");
+        });
+      }
+    });
+
+    Object.keys(gridState.vistedCells).forEach((cellPosInStr) => {
+      const cellPos = convertStringToCellPos(cellPosInStr);
+
+      if (gridState.vistedCells[cellPosInStr]) {
+        setGridState((gridState) => {
+          setCellBackgroundState(gridState, cellPos, "default");
+        });
+      }
+    });
+    const solution = await dijkstra(gridState, async (cellPos: CellPos) => {
+      setGridState((gridState) => {
+        setCellBackgroundState(gridState, cellPos, "visted");
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
 
     if (solution !== null) {
-      Object.keys(gridState.foundCells).forEach((cellsPosInStr) => {
-        const cellPos = convertStringToCellPos(cellsPosInStr);
-
-        if (gridState.foundCells[cellsPosInStr]) {
-          setGridState((gridState) => {
-            setCellBackgroundState(gridState, cellPos, "default");
-          });
-        }
-      });
-
-      Object.keys(gridState.vistedCells).forEach((cellPosInStr) => {
-        const cellPos = convertStringToCellPos(cellPosInStr);
-
-        if (gridState.vistedCells[cellPosInStr]) {
-          setGridState((gridState) => {
-            setCellBackgroundState(gridState, cellPos, "default");
-          });
-        }
-      });
-
       for (const cellPos of solution) {
         setGridState((gridState) => {
           setCellBackgroundState(gridState, cellPos, "found");

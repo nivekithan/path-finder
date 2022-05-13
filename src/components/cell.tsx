@@ -17,7 +17,7 @@ export const Cell = ({
     state.backgroundState === "found"
       ? "found-cell-animation"
       : state.backgroundState === "visted"
-      ? "visted-cell-animation"
+      ? "visited-cell-animation"
       : "";
 
   const onClick = () => {

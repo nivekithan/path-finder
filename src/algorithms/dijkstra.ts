@@ -7,8 +7,12 @@ import {
 import { CellPos } from "../components/cell";
 import { GridState } from "../components/grid";
 
-export const dijkstra = (gridState: GridState) => {
-  const DijkstraSolution = new DijkstraPathFinder(gridState);
+export const dijkstra = async (
+  gridState: GridState,
+  onVisitingNode: (cellPos: CellPos) => void
+) => {
+  const DijkstraSolution = new DijkstraPathFinder(gridState, onVisitingNode);
+  await DijkstraSolution.findSolution();
 
   return DijkstraSolution.targetPath;
 };
@@ -26,22 +30,32 @@ class DijkstraPathFinder {
 
   private visitedCells: Set<string>;
 
-  constructor(gridState: Readonly<GridState>) {
+  private onVisitingNode: (cellPos: CellPos) => void;
+
+  constructor(
+    gridState: Readonly<GridState>,
+    onVisitingNode: (cellPos: CellPos) => void
+  ) {
     this.gridState = gridState;
     this.calculatedPath = {};
     this.visitedCells = new Set();
     this.minimumKnownDistanceThatsNotVisited = null;
     this.targetPath = null;
+    this.onVisitingNode = onVisitingNode;
+  }
 
-    if (gridState.startCell === null) {
+  async findSolution() {
+    if (this.gridState.startCell === null) {
       throw Error("Start cell is not set");
     }
 
-    if (gridState.targetCell === null) {
+    if (this.gridState.targetCell === null) {
       throw Error("Target Cell is not set");
     }
 
-    this.setPathOfCellPosFromSource(gridState.startCell, [gridState.startCell]);
+    this.setPathOfCellPosFromSource(this.gridState.startCell, [
+      this.gridState.startCell,
+    ]);
 
     while (this.getMinimumKnownDistanceThatsNotVisited() !== null) {
       const minimumKnownDistance =
@@ -55,10 +69,12 @@ class DijkstraPathFinder {
       this.visitedCells.add(convertCellPosToString(cellPos));
       this.minimumKnownDistanceThatsNotVisited = null;
 
-      if (comparCellPos(cellPos, gridState.targetCell)) {
+      if (comparCellPos(cellPos, this.gridState.targetCell)) {
         this.targetPath = path;
         break;
       }
+
+      await this.onVisitingNode(cellPos);
 
       const adjacentCells = this.getAdjacentCellPos(cellPos);
 
