@@ -153,11 +153,11 @@ export class EventIdentifier {
 
     if (this.state?.type === "pressedDownOnStartCell") {
       this.setGridStateRef.current((gridState) => {
-        setCellType(gridState, cellPos, { type: "startCellState" });
+        setCellType(gridState, cellPos, "startCellState");
       });
     } else if (this.state?.type === "pressedDownOnTargetCell") {
       this.setGridStateRef.current((gridState) => {
-        setCellType(gridState, cellPos, { type: "targetCellState" });
+        setCellType(gridState, cellPos, "targetCellState");
       });
     }
     this.state = null;
@@ -181,9 +181,7 @@ export class EventIdentifier {
       const state = this.state;
 
       this.setGridStateRef.current((gridState) => {
-        setCellType(gridState, state.startedFrom, {
-          type: "wallCellState",
-        });
+        setCellType(gridState, state.startedFrom, "wallCellState");
       });
     }
 
@@ -191,7 +189,7 @@ export class EventIdentifier {
 
     if (!this.state.passedThrough[convertCellPosToString(cellPos)]) {
       this.setGridStateRef.current((gridState) => {
-        setCellType(gridState, cellPos, { type: "wallCellState" });
+        setCellType(gridState, cellPos, "wallCellState");
       });
 
       this.state.passedThrough[convertCellPosToString(cellPos)] = true;
@@ -202,9 +200,6 @@ export class EventIdentifier {
     this.state = null;
   }
 
-  dispatchPointerOut(e: PointerEvent) {}
-
-  dispatchPointerLeave() {}
 }
 
 const getCellPosFromComposedPath = (path: EventTarget[]): CellPos | null => {
@@ -243,21 +238,21 @@ export const cellGotClicked = (
     if (gridState.cells[pos.row][pos.column].type !== "defaultCellState") {
       // If clicked cell is anything other then default cell then we will set it to default
       setGridState((prevState) => {
-        setCellType(prevState, pos, { type: "defaultCellState" });
+        setCellType(prevState, pos, "defaultCellState");
       });
     }
     // New cell is clicked
     else if (gridState.onClick === "setStartCell") {
       setGridState((prevState) => {
-        setCellType(prevState, pos, { type: "startCellState" });
+        setCellType(prevState, pos, "startCellState");
       });
     } else if (gridState.onClick === "setTargetCell") {
       setGridState((gridState) => {
-        setCellType(gridState, pos, { type: "targetCellState" });
+        setCellType(gridState, pos, "targetCellState");
       });
     } else if (gridState.onClick === "setWallCell") {
       setGridState((gridState) => {
-        setCellType(gridState, pos, { type: "wallCellState" });
+        setCellType(gridState, pos, "wallCellState");
       });
     } else if (gridState.onClick === null) {
       return;

@@ -13,6 +13,13 @@ export const Cell = ({
   cellGotClicked,
   pos: { column, row },
 }: CellProps) => {
+  const cssBackgroundStateAnimation =
+    state.backgroundState === "found"
+      ? "found-cell-animation"
+      : state.backgroundState === "visted"
+      ? "visted-cell-animation"
+      : "";
+
   const onClick = () => {
     cellGotClicked();
   };
@@ -24,11 +31,12 @@ export const Cell = ({
   return (
     <div
       style={{ height: size, width: size }}
-      className="outline-1 outline-blue-500 outline flex justify-center items-center"
+      className={`outline-1 outline-blue-500 outline flex justify-center items-center ${cssBackgroundStateAnimation}`}
       onClick={onClick}
       data-column-pos={column}
       data-row-pos={row}
       data-state-type={state.type}
+      data-background-state={state.backgroundState}
       draggable={false}
       onDragStart={onDragStart}
     >
@@ -92,7 +100,19 @@ export type CellState =
   | TargetCellState
   | WallCellState;
 
-export type TargetCellState = { type: "targetCellState" };
-export type StartCellState = { type: "startCellState" };
-export type DefaultCellState = { type: "defaultCellState" };
-export type WallCellState = { type: "wallCellState" };
+export type TargetCellState = {
+  type: "targetCellState";
+  backgroundState: "found" | "default";
+};
+export type StartCellState = {
+  type: "startCellState";
+  backgroundState: "visted" | "found" | "default";
+};
+export type DefaultCellState = {
+  type: "defaultCellState";
+  backgroundState: "visted" | "found" | "default";
+};
+export type WallCellState = {
+  type: "wallCellState";
+  backgroundState: "default";
+};

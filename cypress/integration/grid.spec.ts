@@ -159,4 +159,33 @@ describe("Testing Grid functionality", () => {
       .should("have.attr", "data-state-type")
       .and("eq", "wallCellState");
   });
+
+  it("Testing solution", () => {
+    cy.contains("Visualise").click();
+
+    const solution = [
+      "1-2",
+      "1-3",
+      "2-3",
+      "3-3",
+      "4-3",
+      "5-3",
+      "6-3",
+      "6-4",
+      "6-5",
+      "6-6",
+      "6-7",
+      "6-8",
+      "6-9",
+      "6-10",
+    ];
+
+    solution.forEach((cellPosInStr) => {
+      const [row, column] = cellPosInStr.split("-");
+
+      cy.getCell({ column: parseInt(column), row: parseInt(row) })
+        .should("have.attr", "data-background-state")
+        .and("eq", "found");
+    });
+  });
 });

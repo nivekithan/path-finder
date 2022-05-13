@@ -36,93 +36,94 @@ export const computeNextOnlick = (gridState: GridState): GridOnclick => {
   }
 };
 
-export const getCellState = (gridState: GridState, cellPos: CellPos): CellState => {
+export const getCellState = (
+  gridState: GridState,
+  cellPos: CellPos
+): CellState => {
   return gridState.cells[cellPos.row][cellPos.column];
 };
 
 export const setCellType = (
   gridState: WritableDraft<GridState>,
   cellPos: CellPos,
-  newCellType: CellState
+  newCellType: CellState["type"]
 ) => {
-  if (newCellType.type === "defaultCellState") {
+  if (newCellType === "defaultCellState") {
     const currentCellType = gridState.cells[cellPos.row][cellPos.column].type;
 
     if (currentCellType === "defaultCellState") {
       // Do nothing
     } else if (currentCellType === "startCellState") {
       gridState.startCell = null;
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else if (currentCellType === "targetCellState") {
       gridState.targetCell = null;
 
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else if (currentCellType === "wallCellState") {
       delete gridState.walls[convertCellPosToString(cellPos)];
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else {
       throw Error("Add more cases");
     }
-  } else if (newCellType.type === "startCellState") {
+  } else if (newCellType === "startCellState") {
     const currentCellType = gridState.cells[cellPos.row][cellPos.column].type;
 
     if (gridState.startCell) {
       // if startCell is already present change it to default cell
-      setCellType(gridState, gridState.startCell, { type: "defaultCellState" });
+      setCellType(gridState, gridState.startCell, "defaultCellState");
     }
 
     gridState.startCell = cellPos;
 
     if (currentCellType === "defaultCellState") {
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else if (currentCellType === "startCellState") {
       // Do nothing
     } else if (currentCellType === "targetCellState") {
       gridState.targetCell = null;
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else if (currentCellType === "wallCellState") {
       delete gridState.walls[convertCellPosToString(cellPos)];
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else {
       throw Error("Add more cases");
     }
-  } else if (newCellType.type === "targetCellState") {
+  } else if (newCellType === "targetCellState") {
     const currentCellType = gridState.cells[cellPos.row][cellPos.column].type;
 
     if (gridState.targetCell) {
       // if targetCell is already present change it to default cell
-      setCellType(gridState, gridState.targetCell, {
-        type: "defaultCellState",
-      });
+      setCellType(gridState, gridState.targetCell, "defaultCellState");
     }
 
     gridState.targetCell = cellPos;
 
     if (currentCellType === "defaultCellState") {
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else if (currentCellType === "startCellState") {
       gridState.startCell = null;
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else if (currentCellType === "targetCellState") {
       // Do nothing
     } else if (currentCellType === "wallCellState") {
       delete gridState.walls[convertCellPosToString(cellPos)];
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else {
       throw Error("Add more cases");
     }
-  } else if (newCellType.type === "wallCellState") {
+  } else if (newCellType === "wallCellState") {
     const currentCellType = gridState.cells[cellPos.row][cellPos.column].type;
 
     gridState.walls[convertCellPosToString(cellPos)] = true;
     if (currentCellType === "defaultCellState") {
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else if (currentCellType === "startCellState") {
       gridState.startCell = null;
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else if (currentCellType === "targetCellState") {
       gridState.targetCell = null;
-      gridState.cells[cellPos.row][cellPos.column] = newCellType;
+      gridState.cells[cellPos.row][cellPos.column].type = newCellType;
     } else if (currentCellType === "wallCellState") {
       // Do nothing
     } else {
@@ -132,5 +133,71 @@ export const setCellType = (
     throw Error("Add more cases");
   }
 
+  sanitizeCellBackgroundState(gridState, cellPos);
+
   gridState.onClick = computeNextOnlick(gridState);
+};
+
+const sanitizeCellBackgroundState = (
+  gridState: GridState,
+  cellPos: CellPos
+) => {
+  const cellState = gridState.cells[cellPos.row][cellPos.column] as {
+    type: string;
+    backgroundState: string;
+  };
+
+  if (cellState.type === "targetCellState") {
+    if (cellState.backgroundState === "visted") {
+      setCellBackgroundState(gridState, cellPos, "default");
+    }
+  } else if (cellState.type === "wallCellState") {
+    setCellBackgroundState(gridState, cellPos, "default");
+  }
+};
+
+export const setCellBackgroundState = (
+  gridState: WritableDraft<GridState>,
+  cellPos: CellPos,
+  newCellBackground: CellState["backgroundState"]
+) => {
+  const currentCellBackground =
+    gridState.cells[cellPos.row][cellPos.column].backgroundState;
+
+  if (currentCellBackground === "visted") {
+    delete gridState.vistedCells[convertCellPosToString(cellPos)];
+  } else if (currentCellBackground === "found") {
+    delete gridState.foundCells[convertCellPosToString(cellPos)];
+  }
+
+  if (newCellBackground === "found") {
+    gridState.foundCells[convertCellPosToString(cellPos)] = true;
+  } else if (newCellBackground === "visted") {
+    gridState.vistedCells[convertCellPosToString(cellPos)] = true;
+  }
+
+  gridState.cells[cellPos.row][cellPos.column].backgroundState =
+    newCellBackground;
+
+  sanitizeCellType(gridState, cellPos);
+};
+
+const sanitizeCellType = (gridState: GridState, cellPos: CellPos) => {
+  const cellState = gridState.cells[cellPos.row][cellPos.column] as {
+    type: string;
+    backgroundState: string;
+  };
+
+  if (cellState.backgroundState === "visted") {
+    if (
+      cellState.type === "targetCellState" ||
+      cellState.type === "wallCellState"
+    ) {
+      setCellType(gridState, cellPos, "defaultCellState");
+    }
+  } else if (cellState.backgroundState === "found") {
+    if (cellState.type === "wallCellState") {
+      setCellType(gridState, cellPos, "defaultCellState");
+    }
+  }
 };
