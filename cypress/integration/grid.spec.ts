@@ -160,7 +160,7 @@ describe("Testing Grid functionality", () => {
       .and("eq", "wallCellState");
   });
 
-  it("Testing solution", () => {
+  it("Testing dijkstra solution", () => {
     cy.contains("Visualise").click();
 
     const solution = [
@@ -179,6 +179,37 @@ describe("Testing Grid functionality", () => {
       "6-9",
       "6-10",
     ];
+
+    solution.forEach((cellPosInStr) => {
+      const [row, column] = cellPosInStr.split("-");
+
+      cy.getCell({ column: parseInt(column), row: parseInt(row) })
+        .should("have.attr", "data-background-state")
+        .and("eq", "found");
+    });
+  });
+
+  it("Testing A* solution", () => {
+    const solution = [
+      "1-2",
+      "2-2",
+      "3-2",
+      "4-2",
+      "5-2",
+      "6-2",
+      "6-3",
+      "6-4",
+      "6-5",
+      "6-6",
+      "6-7",
+      "6-8",
+      "6-9",
+      "6-10",
+    ];
+
+    cy.get("[name=algorithm]").select("aStar");
+
+    cy.contains("Visualise").click();
 
     solution.forEach((cellPosInStr) => {
       const [row, column] = cellPosInStr.split("-");

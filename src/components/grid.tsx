@@ -5,6 +5,7 @@ import { convertStringToCellPos } from "../cellHelpers";
 import React, { useEffect, useRef, useState } from "react";
 import { cellGotClicked, EventIdentifier } from "../eventIdentifier";
 import { dijkstra } from "../algorithms/dijkstra";
+import { aStar } from "../algorithms/aStar";
 
 export type GridProps = {
   column: number;
@@ -98,10 +99,11 @@ export const Grid = ({ row, column }: GridProps) => {
       AvaliableAlgorithm,
       (
         gridState: GridState,
-        onVisitingNode: (cellPos: CellPos) => void
+        onVisitingNode: (cellPos: CellPos) => Promise<void>
       ) => Promise<CellPos[] | null>
     > = {
       dijkstra: dijkstra,
+      aStar: aStar,
     };
 
     if (selectRef.current === null) {
@@ -181,12 +183,13 @@ export const Grid = ({ row, column }: GridProps) => {
         <label className="flex items-center justify-center gap-x-2 font-semibold">
           Algorithms :
           <select
-            name="Algorithm"
+            name="algorithm"
             className="rounded px-3 py-2"
             ref={selectRef}
             defaultValue="dijkstra"
           >
             <option value="dijkstra">Dijkstra</option>
+            <option value="aStar">A*</option>
           </select>
         </label>
         <button
@@ -207,4 +210,4 @@ export const Grid = ({ row, column }: GridProps) => {
   );
 };
 
-export type AvaliableAlgorithm = "dijkstra";
+export type AvaliableAlgorithm = "dijkstra" | "aStar";
