@@ -6,6 +6,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { cellGotClicked, EventIdentifier } from "../eventIdentifier";
 import { dijkstra } from "../algorithms/dijkstra";
 import { aStar } from "../algorithms/aStar";
+import { depthFirst } from "../algorithms/depthFirst";
+import { breadthFirst } from "../algorithms/breadthFirst";
 
 export type GridProps = {
   column: number;
@@ -104,6 +106,8 @@ export const Grid = ({ row, column }: GridProps) => {
     > = {
       dijkstra: dijkstra,
       aStar: aStar,
+      dfs: depthFirst,
+      bfs: breadthFirst,
     };
 
     if (selectRef.current === null) {
@@ -190,6 +194,8 @@ export const Grid = ({ row, column }: GridProps) => {
           >
             <option value="dijkstra">Dijkstra</option>
             <option value="aStar">A*</option>
+            <option value="dfs">Depth First Search</option>
+            <option value="bfs">Breadth First Search</option>
           </select>
         </label>
         <button
@@ -210,4 +216,4 @@ export const Grid = ({ row, column }: GridProps) => {
   );
 };
 
-export type AvaliableAlgorithm = "dijkstra" | "aStar";
+export type AvaliableAlgorithm = "dijkstra" | "aStar" | "dfs" | "bfs";
