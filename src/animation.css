@@ -17,7 +17,7 @@
 }
 
 .found-cell-animation {
-  animation: found-cell-animation 0.9s ease-out 0s 1 forwards;
+  animation: found-cell-animation 0.75s ease-out 0s 1 forwards;
 }
 
 @keyframes found-cell-animation {
@@ -38,7 +38,7 @@
 }
 
 .visited-cell-animation {
-  animation: visited-cell-animation 0.75s ease-out 0s 1 forwards;
+  animation: visited-cell-animation 1.2s ease-out 0s 1 forwards;
 }
 
 @keyframes visited-cell-animation {

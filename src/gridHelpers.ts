@@ -2,9 +2,8 @@ import { WritableDraft } from "immer/dist/internal";
 import { convertCellPosToString } from "./cellHelpers";
 import { CellPos, CellState } from "./components/cell";
 import { GridOnclick, GridState } from "./components/grid";
-import { current } from "immer";
 
-export const CELL_SIZE = 35;
+export const CELL_SIZE = 50;
 
 export const getViewportDimension = () => {
   const width = window.innerWidth;
