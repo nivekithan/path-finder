@@ -1,11 +1,10 @@
-import { has } from "immer/dist/internal";
 import {
   comparCellPos,
   convertCellPosToString,
   convertStringToCellPos,
-} from "../cellHelpers";
-import { CellPos } from "../components/cell";
-import { GridState } from "../components/grid";
+} from "../../cellHelpers";
+import { CellPos } from "../../components/cell";
+import { GridState } from "../../components/grid";
 
 export const dijkstra = async (
   gridState: GridState,

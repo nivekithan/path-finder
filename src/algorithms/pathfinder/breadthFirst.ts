@@ -1,6 +1,6 @@
-import { comparCellPos, convertCellPosToString } from "../cellHelpers";
-import { CellPos } from "../components/cell";
-import { GridState } from "../components/grid";
+import { comparCellPos, convertCellPosToString } from "../../cellHelpers";
+import { CellPos } from "../../components/cell";
+import { GridState } from "../../components/grid";
 
 export const breadthFirst = async (
   gridState: GridState,

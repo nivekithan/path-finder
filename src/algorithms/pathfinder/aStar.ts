@@ -2,9 +2,9 @@ import {
   comparCellPos,
   convertCellPosToString,
   convertStringToCellPos,
-} from "../cellHelpers";
-import { CellPos } from "../components/cell";
-import { GridState } from "../components/grid";
+} from "../../cellHelpers";
+import { CellPos } from "../../components/cell";
+import { GridState } from "../../components/grid";
 
 export const aStar = async (
   gridState: GridState,

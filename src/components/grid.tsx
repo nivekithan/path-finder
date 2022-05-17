@@ -1,13 +1,14 @@
-import { CELL_SIZE, setCellBackgroundState } from "../gridHelpers";
+import { CELL_SIZE, setCellBackgroundState, setCellType } from "../gridHelpers";
 import { Cell, CellPos, CellState } from "./cell";
 import { useImmer } from "use-immer";
 import { convertStringToCellPos } from "../cellHelpers";
 import React, { useEffect, useRef, useState } from "react";
 import { cellGotClicked, EventIdentifier } from "../eventIdentifier";
-import { dijkstra } from "../algorithms/dijkstra";
-import { aStar } from "../algorithms/aStar";
-import { depthFirst } from "../algorithms/depthFirst";
-import { breadthFirst } from "../algorithms/breadthFirst";
+import { dijkstra } from "../algorithms/pathfinder/dijkstra";
+import { aStar } from "../algorithms/pathfinder/aStar";
+import { depthFirst } from "../algorithms/pathfinder/depthFirst";
+import { breadthFirst } from "../algorithms/pathfinder/breadthFirst";
+import { recursiveDivision } from "../algorithms/maze/recursiveDivision";
 
 export type GridProps = {
   column: number;
@@ -52,7 +53,8 @@ export const Grid = ({ row, column }: GridProps) => {
 
   const gridStateRef = useRef(gridState);
   const setGridStateRef = useRef(setGridState);
-  const selectRef = useRef<HTMLSelectElement | null>(null);
+  const algorithmSelectRef = useRef<HTMLSelectElement | null>(null);
+  const mazeGeneratorSelectRef = useRef<HTMLSelectElement | null>(null);
 
   useEffect(() => {
     gridStateRef.current = gridState;
@@ -98,7 +100,7 @@ export const Grid = ({ row, column }: GridProps) => {
     });
 
     const avaliableAlgorithm: Record<
-      AvaliableAlgorithm,
+      AvailableAlgorithm,
       (
         gridState: GridState,
         onVisitingNode: (cellPos: CellPos) => Promise<void>
@@ -110,11 +112,12 @@ export const Grid = ({ row, column }: GridProps) => {
       bfs: breadthFirst,
     };
 
-    if (selectRef.current === null) {
+    if (algorithmSelectRef.current === null) {
       throw Error("Set selectRef to a valid element");
     }
 
-    const selectedValue = selectRef.current.value as AvaliableAlgorithm;
+    const selectedValue = algorithmSelectRef.current
+      .value as AvailableAlgorithm;
 
     const solution = await avaliableAlgorithm[selectedValue](
       gridState,
@@ -136,24 +139,40 @@ export const Grid = ({ row, column }: GridProps) => {
       }
     }
   };
+  const resetGridState = () => {
+    setGridState({
+      cells: Array<CellState[]>(row).fill(
+        Array<CellState>(column).fill({
+          type: "defaultCellState",
+          backgroundState: "default",
+        })
+      ),
+      startCell: null,
+      targetCell: null,
+      vistedCells: {},
+      foundCells: {},
+      walls: {},
+      onClick: "setStartCell",
+    });
+  };
 
   const onClearGrid = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    setGridState((gridState) => {
-      gridState.startCell = null;
-      gridState.targetCell = null;
-      gridState.vistedCells = {};
-      gridState.foundCells = {};
-      gridState.walls = {};
-      gridState.onClick = "setStartCell";
+    resetGridState();
+  };
 
-      gridState.cells.forEach((row) => {
-        row.forEach((cell) => {
-          cell.type = "defaultCellState";
-          cell.backgroundState = "default";
-        });
+  const onGenerateMaze = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    resetGridState();
+
+    await recursiveDivision(gridState, async (cellPos: CellPos) => {
+      setGridState((gridState) => {
+        setCellType(gridState, cellPos, "wallCellState");
       });
+
+      await new Promise((r) => setTimeout(r, 20));
     });
   };
 
@@ -183,30 +202,39 @@ export const Grid = ({ row, column }: GridProps) => {
           </div>
         );
       })}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 mb-5 shadow-lg p-4 rounded bg-gray-100 flex gap-x-2">
-        <label className="flex items-center justify-center gap-x-2 font-semibold">
-          Algorithms :
-          <select
-            name="algorithm"
-            className="rounded px-3 py-2"
-            ref={selectRef}
-            defaultValue="dijkstra"
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 mb-5 shadow-lg p-4 rounded bg-gray-100 flex gap-x-2 w-fit">
+        <div className="flex gap-x-2">
+          <label className="flex items-center justify-center gap-x-2 font-semibold">
+            Path finder algorithms :
+            <select
+              name="algorithm"
+              className="rounded px-3 py-2"
+              ref={algorithmSelectRef}
+              defaultValue="dijkstra"
+            >
+              <option value="dijkstra">Dijkstra</option>
+              <option value="aStar">A*</option>
+              <option value="dfs">Depth First Search</option>
+              <option value="bfs">Breadth First Search</option>
+            </select>
+          </label>
+          <button
+            className="bg-blue-700 rounded px-3 py-2 text-white disabled:opacity-50"
+            disabled={!canVisualize}
+            onClick={onVisualize}
           >
-            <option value="dijkstra">Dijkstra</option>
-            <option value="aStar">A*</option>
-            <option value="dfs">Depth First Search</option>
-            <option value="bfs">Breadth First Search</option>
-          </select>
-        </label>
+            Visualise
+          </button>
+        </div>
+
         <button
-          className="bg-blue-700 rounded px-3 py-2 text-white disabled:opacity-50"
-          disabled={!canVisualize}
-          onClick={onVisualize}
+          className="bg-emerald-600 rounded px-3 py-2 text-white disabled:opacity-50"
+          onClick={onGenerateMaze}
         >
-          Visualise
+          Generate Maze
         </button>
         <button
-          className="bg-blue-700 rounded px-3 py-2 text-white"
+          className="bg-red-700 rounded px-3 py-2 text-white"
           onClick={onClearGrid}
         >
           Clear Grid
@@ -216,4 +244,5 @@ export const Grid = ({ row, column }: GridProps) => {
   );
 };
 
-export type AvaliableAlgorithm = "dijkstra" | "aStar" | "dfs" | "bfs";
+export type AvailableAlgorithm = "dijkstra" | "aStar" | "dfs" | "bfs";
+export type AvailableMazeGenerator = "";
