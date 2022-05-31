@@ -30,7 +30,7 @@ export const Cell = ({
 
   return (
     <div
-      style={{ height: size, width: size }}
+      style={{ height: size, width: size, minWidth: size }}
       className={`outline-1 outline-blue-500 outline flex justify-center items-center ${cssBackgroundStateAnimation}`}
       onClick={onClick}
       data-column-pos={column}

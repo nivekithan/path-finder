@@ -107,6 +107,7 @@ const Pages: { [index: number]: React.ReactElement } = {
         src="/path-finding.jpg"
         alt="Finding path"
         className="rounded-md w-[20rem] h-[20rem]"
+        key={1}
       />
     </>
   ),
