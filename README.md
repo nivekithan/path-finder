@@ -17,7 +17,7 @@ various pathfinding algorithms in action, and more!
 
 This SPA created using 
 - [Typescript](https://www.typescriptlang.org/) for type safety and better DX
-- [React](https://reactjs.org/) Frontend library to declartive UI
+- [React](https://reactjs.org/) Frontend library to declarative UI
 - [vite](https://vitejs.dev/) for bundling
 - [Cypress](cypress.io) for test
 - [Tailwindcss](https://tailwindcss.com/) for styling
